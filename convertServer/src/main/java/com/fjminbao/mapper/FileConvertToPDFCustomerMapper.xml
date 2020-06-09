@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fjminbao.mapper.FileConvertToPDFCustomerMapper">
+
+    <resultMap id="FileConvertMSGResultMap" type="com.fjminbao.entity.FileConvertMsg">
+        <result property="id" column="ID" />
+        <result property="originFileName" column="OriginFileName" jdbcType="VARCHAR" />
+        <result property="originFileSavePath" column="OriginFileSavePath" jdbcType="VARCHAR" />
+        <result property="targetFileName" column="TargetFileName" jdbcType="VARCHAR" />
+        <result property="targetFileSavePath" column="TargetFileSavePath" jdbcType="VARCHAR" />
+        <result property="convertStatus" column="ConvertStatus" jdbcType="VARCHAR" />
+        <result property="sourceSystem" column="SourceSystem" jdbcType="VARCHAR" />
+        <result property="pages" column="Pages" jdbcType="VARCHAR" />
+        <result property="pageRange" column="PageRange" jdbcType="VARCHAR" />
+        <result property="reserve1" column="Reserve1" jdbcType="VARCHAR" />
+        <result property="reserve2" column="Reserve2" jdbcType="VARCHAR" />
+        <result property="reserve3" column="Reserve3" jdbcType="VARCHAR" />
+        <result property="reserve4" column="Reserve4" jdbcType="VARCHAR" />
+        <result property="reserve5" column="Reserve5" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID,OriginFileName,OriginFileSavePath,TargetFileName,TargetFileSavePath,
+        ConvertStatus,SourceSystem,Pages,PageRange,Reserve1,Reserve2,
+        Reserve3,Reserve4,Reserve5
+    </sql>
+
+    <sql id="Where_Condition">
+        WHERE 1=1
+        <if test="id !=null">
+           and ID = #{id}
+        </if>
+        <if test="originFileName !=null">
+            and OriginFileName = #{originFileName}
+        </if>
+        <if test="originFileSavePath !=null">
+            and OriginFileSavePath = #{originFileSavePath}
+        </if>
+        <if test="targetFileName !=null">
+            and TargetFileName = #{targetFileName}
+        </if>
+        <if test="targetFileSavePath !=null">
+           and  TargetFileSavePath = #{targetFileSavePath}
+        </if>
+        <if test="convertStatus !=null">
+            and ConvertStatus = #{convertStatus}
+        </if>
+        <if test="sourceSystem !=null">
+           and SourceSystem = #{sourceSystem}
+        </if>
+        <if test="pages !=null">
+           and  Pages = #{pages}
+        </if>
+        <if test="pageRange !=null">
+            and  PageRange = #{pageRange}
+        </if>
+        <if test="reserve1 !=null">
+            and  Reserve1 = #{reserve1}
+        </if>
+        <if test="reserve2 !=null">
+            and  Reserve2 = #{reserve2}
+        </if>
+        <if test="reserve3 !=null">
+            and  Reserve3 = #{reserve3}
+        </if>
+        <if test="reserve4 !=null">
+            and  Reserve4 = #{reserve4}
+        </if>
+        <if test="reserve5 !=null">
+            and  Reserve5 = #{reserve5}
+        </if>
+    </sql>
+
+    <sql id="Limit_Condition">
+        <if test="(pageNum !=null) and (pageSize !=null) ">
+            limit #{pageNum},#{pageSize}
+        </if>
+    </sql>
+
+    <!--查询  按条件分页-->
+    <select id="queryFileConvertMsg" parameterType="Map" resultMap="FileConvertMSGResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from FILE_CONVERT_MSG
+        <where>
+            <include refid="Where_Condition"/>
+        </where>
+        <!--分页-->
+        <include refid="Limit_Condition"/>
+    </select>
+
+    <!--新增-->
+    <insert id="addFileConvertMsg" parameterType="com.fjminbao.entity.FileConvertMsg" >
+        insert into FILE_CONVERT_MSG(
+            OriginFileName,
+            OriginFileSavePath,
+            TargetFileName,
+            TargetFileSavePath,
+            ConvertStatus,
+            SourceSystem,
+            Pages,
+            PageRange,
+            Reserve1,
+            Reserve2,
+            Reserve3,
+            Reserve4,
+            Reserve5
+        )
+        values(
+             #{originFileName},
+             #{originFileSavePath},
+            #{targetFileName},
+            #{targetFileSavePath},
+            #{convertStatus},
+             #{sourceSystem},
+            #{pages},
+            #{pageRange},
+            #{reserve1},
+             #{reserve2},
+            #{reserve3},
+            #{reserve4},
+            #{reserve5}
+        )
+    </insert>
+
+    <!--修改 转换状态-->
+    <update id="updateFileConvertMsg" parameterType="com.fjminbao.entity.FileConvertMsg">
+        update USER_PUB_KEY set ConvertStatus=#{convertStatus}
+        <where>
+            <include refid="Where_Condition"></include>
+        </where>
+    </update>
+
+    <!--删除-->
+    <delete id="delFileConvertMsg" parameterType="com.fjminbao.entity.FileConvertMsg">
+        delete from USER_PUB_KEY
+        <where>
+            <include refid="Where_Condition"></include>
+        </where>
+    </delete>
+
+
+</mapper>
