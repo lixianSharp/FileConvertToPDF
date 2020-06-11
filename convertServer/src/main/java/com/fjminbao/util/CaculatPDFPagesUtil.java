@@ -60,6 +60,8 @@ public class CaculatPDFPagesUtil {
         try {
             reader = new PdfReader(filepath);
             pagecount= reader.getNumberOfPages();
+            //释放资源
+            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
