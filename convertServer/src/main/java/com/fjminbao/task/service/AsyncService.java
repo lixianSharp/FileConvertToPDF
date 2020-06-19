@@ -1,9 +1,13 @@
 package com.fjminbao.task.service;
 
+import com.alibaba.fastjson.JSON;
 import com.fjminbao.dao.FileConvertMapperDao;
+import com.fjminbao.dto.ResponseDTO;
 import com.fjminbao.entity.FileConvertMsg;
 import com.fjminbao.util.CaculatPDFPagesUtil;
+import com.fjminbao.util.HttpUtil;
 import com.fjminbao.util.OfficeConvertPDF;
+import com.google.gson.JsonParser;
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.Dispatch;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +15,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -61,14 +67,10 @@ public class AsyncService {
         if ("xls".equals(extensionName) || "xlsx".equals(extensionName)) {
             //文件转换失败返回-1，文件转换成功返回对应的总页码数
              pages =  OfficeConvertPDF.excel2PDF(targetFileFullPath,convertFileFullPath);
-            //因为excel(xls、xlsx)可以直接获取到页数
-            //pages = CaculatPDFPagesUtil.getFilePages(targetFileFullPath);
         } else if ("doc".equals(extensionName) || "docx".equals(extensionName)) {
             pages = word2PDF(targetFileFullPath, convertFileFullPath);
         } else if ("ppt".equals(extensionName) || "pptx".equals(extensionName)) {
             pages =  OfficeConvertPDF.ppt2PDF(targetFileFullPath,convertFileFullPath);
-            //ppt(ppt、pptx)不需要文件转换，因为可以直接获取到页数
-           // pages = CaculatPDFPagesUtil.getFilePages(targetFileFullPath);
         }else if("pdf".equals(extensionName)){
             pages = CaculatPDFPagesUtil.getFilePages(targetFileFullPath);
         }
@@ -87,14 +89,14 @@ public class AsyncService {
     }
 
 
-
-  //  @Async
+    //异步保存文件信息
+    @Async
     public void handleFileConvertMsg(String targetFileFullPath,
                                      String convertFileFullPath, String originFileName,String  convertStatus, String pages) {
         //目标文件存放路径
-        String targetFilePath = "C:\\upload\\";//configProperties.getTargetFilePath();
+        String targetFilePath = targetFileFullPath;//"C:\\upload\\";//configProperties.getTargetFilePath();
         //转换后的文件存放地址
-        String convertFilePath = "D:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\convertToPdfDir\\";//configProperties.getConvertFilePath();
+        String convertFilePath = "K:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\convertToPdfDir\\";//configProperties.getConvertFilePath();
 
         //获取目标文件名(不带目录)
         String targetFileName = originFileName;
@@ -121,10 +123,48 @@ public class AsyncService {
         //总页码
         fileConvertMsg.setPages(pages);
 
+
+        //往8088API服务发起一个请求，获取默认价格
+        String url = "http://www.fjminbaoscp.com:8088/queryFilePriceByFileNameAndPages";
+        Map<String,Object> paramMap = new HashMap<String,Object>();
+        paramMap.put("pages",pages);//总页数
+        paramMap.put("fileName",convertFileName);//文件名
+        String fileDefaultPrice = "0";
+        try {
+            String result = HttpUtil.post(url, paramMap);
+            logger.info("返回的数据:result="+result);
+            //TODO 解析json格式的result，将里面的默认价格解析出来
+            Map<String, Object> data = JSON.parseObject(result, Map.class);
+            fileDefaultPrice = (String)data.get("filePrice");
+            logger.info("价格="+fileDefaultPrice);
+        } catch (Exception e) {
+            logger.info("获取默认价格失败");
+            e.printStackTrace();
+        }
+        //默认价格 黑白、单面、A4、1份的价格
+        fileConvertMsg.setReserve3(fileDefaultPrice);
+
         //保存
         fileConvertMapperDao.addFileConvertMsg(fileConvertMsg);
     }
 
+//    public static void main(String[] args) {
+//        String url = "http://localhost:8088/queryFilePriceByFileNameAndPages";
+//        Map<String,Object> paramMap = new HashMap<String,Object>();
+//        paramMap.put("pages",3);//总页数
+//        paramMap.put("fileName","Ppdf20200609173432024.pdf");//文件名
+//        String fileDefaultPrice = "0";
+//        try {
+//            String result = HttpUtil.post(url, paramMap);
+//            logger.info("返回的数据:result="+result);
+//            //TODO 解析json格式的result，将里面的默认价格解析出来
+//            Map<String, Object> data = JSON.parseObject(result, Map.class);
+//            String filePrice = (String)data.get("filePrice");
+//            logger.info("价格="+filePrice);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     /////////////////////////////////////////////////////////////////////////////////
     ////////////////【【【【【【【【【【以下是文件转换代码】】】】】】】】】】】】】】】】】
@@ -192,6 +232,8 @@ public class AsyncService {
                 fromfile.delete();
             }
 
+            //释放资源
+//            Dispatch.call(docs, "Close", false);
             //文件转换成功之后，获取PDF文件页码
             return CaculatPDFPagesUtil.getPDFPage(pdfFile);
             //  return true;
@@ -227,6 +269,9 @@ public class AsyncService {
             if (fromfile.exists()) {
                 fromfile.delete();
             }
+
+            //释放资源
+//            Dispatch.call(excels, "Close", false);
             //文件转换成功之后，获取文件总页码
             return CaculatPDFPagesUtil.getPDFPage(pdfFile);
             //return true;
@@ -266,6 +311,10 @@ public class AsyncService {
             if (fromfile.exists()) {
                 fromfile.delete();
             }
+
+            //释放资源
+//            Dispatch.call(ppts, "Close");
+
             //文件转换成功之后，获取文件总页码
             return CaculatPDFPagesUtil.getPDFPage(pdfFile);
             //  return true;

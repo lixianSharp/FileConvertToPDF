@@ -9,8 +9,22 @@ import lombok.Data;
  */
 @Data
 public class RequestDTO {
-    //源文件名
+    /**
+     * 源文件名
+     */
     private String fileName;
-    //源文件存储路径
+    /**
+     *  源文件存储路径
+     */
     private String filePath;
+
+    /**
+     * 要合并的PDF文件的文件全路径名
+     */
+    private String[] pdfFilePathNames;
+
+    /**
+     * 合并后的PDF的全路径
+     */
+    private String mergePdfFilePath;
 }
