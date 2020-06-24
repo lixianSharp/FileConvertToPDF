@@ -1,9 +1,13 @@
 package com.fjminbao.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.fjminbao.dto.ResponseDTO;
+import com.fjminbao.task.service.AsyncDealWithPdfService;
 import com.fjminbao.task.service.AsyncMergePdfService;
+import com.fjminbao.util.MergePdfBySpirePDFUtils;
 import com.fjminbao.util.MergePdfUtils;
+import com.fjminbao.util.SplitPDFUtils;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -31,6 +36,9 @@ public class MergePdfFilesController {
     @Autowired
     private AsyncMergePdfService asyncMergePdfService;
 
+    @Autowired
+    private AsyncDealWithPdfService asyncDealWithPdfService;
+
     @RequestMapping(value = "/mergePdfFiles",method = RequestMethod.POST)
     public ResponseDTO mergePdfFiles(HttpServletRequest request){
         ResponseDTO responseDTO = new ResponseDTO();
@@ -47,7 +55,7 @@ public class MergePdfFilesController {
         String[] pdfFilePathNames = new String[list.size()];
         for(int i=0;i<list.size();i++){
             String pdfFilePath = list.get(i);
-            pdfFilePathNames[i] = "K:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\convertToPdfDir\\"+pdfFilePath;
+            pdfFilePathNames[i] = "K:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\"+pdfFilePath;
         }
 
 
@@ -67,4 +75,23 @@ public class MergePdfFilesController {
 
         return responseDTO;
     }
+
+
+    /**
+     * 处理文件的拆分与合并
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/splitPdfAndMergePdf")
+    public ResponseDTO splitPdfAndMergePdf(HttpServletRequest request)throws Exception{
+        ResponseDTO responseDTO = new ResponseDTO();
+        asyncDealWithPdfService.dealWithPdfSplitAndMerge(request);
+
+        responseDTO.setResultCode(1);
+        responseDTO.setResultMsg("SUCCESS");
+        return responseDTO;
+    }
+
+
 }

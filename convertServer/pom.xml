@@ -246,13 +246,19 @@
 			<version>3.0.1</version>
 		</dependency>
 
-		<!-- 用于多个PDF合并成一个PDF https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
+		<!-- 用于多个PDF合并成一个PDF，这个不能指定每个PDF文件的指定页码进行合并，只能整个整个文件进行合并 https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
 			<version>1.7.1</version>
 		</dependency>
 
+		<!--指定Spire.PDF for Java的Maven依赖。 Free Spire.PDF for Java  （免费版）-->
+		<dependency>
+			<groupId>e-iceblue</groupId>
+			<artifactId>spire.pdf.free</artifactId>
+			<version>2.6.3</version>
+		</dependency>
 
 
 		<dependency>
@@ -272,6 +278,14 @@
 			<version>138</version>
 		</dependency>
 	</dependencies>
+
+	<!--在pom.xml文件中配置Spire 系列 Java 产品的Maven仓库路径-->
+	<repositories>
+		<repository>
+			<id>com.e-iceblue</id>
+			<url>http://repo.e-iceblue.cn/repository/maven-public/</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>

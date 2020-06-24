@@ -5,6 +5,7 @@ import com.fjminbao.task.config.ConfigProperties;
 import com.fjminbao.task.service.AsyncService;
 import com.fjminbao.util.CaculatPDFPagesUtil;
 import com.fjminbao.util.DownLoadFileUtil;
+import com.fjminbao.util.HttpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -93,8 +94,6 @@ public class TESTController {
 
         return responseDTO;
     }
-
-
 
 
 

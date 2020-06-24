@@ -48,10 +48,10 @@ public class CaculatPDFPagesUtil {
         return -1;
     }
 
-    /** 这个没问题
+    /**
      * 计算pdf格式文档的页数
      * @param filepath 文件路径
-     * @return pagecount页数
+     * @return  pagecount页数
      */
     public static int getPDFPage(String filepath){
         logger.info("准备获取pdf的页数.....");

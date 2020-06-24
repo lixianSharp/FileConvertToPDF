@@ -234,7 +234,7 @@ public class AsyncService {
 
             //释放资源
 //            Dispatch.call(docs, "Close", false);
-            //文件转换成功之后，获取PDF文件页码
+            // 文件转换成功之后，获取PDF文件页码
             return CaculatPDFPagesUtil.getPDFPage(pdfFile);
             //  return true;
         } catch (Exception e) {
