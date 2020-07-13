@@ -44,9 +44,9 @@ public class Image2PDF {
         } catch (Exception ex) {
         }
     }
-    public static void image2pdf(String text, String pdf) throws DocumentException, IOException {
+    public static void image2pdf(String text, String pdfFilePath) throws DocumentException, IOException {
         Document document = new Document();
-        OutputStream os = new FileOutputStream(new File(pdf));
+        OutputStream os = new FileOutputStream(new File(pdfFilePath));
         PdfWriter.getInstance(document,os);
         document.open();
         createPic(document,text);

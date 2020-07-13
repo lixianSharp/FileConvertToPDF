@@ -36,7 +36,7 @@ public class ConverFileToPDFController {
 
 
     /**
-     * office文件转为pdf，并获取总页数
+     * office文件转为pdf，并获取总页数。 目前只支持 word、ppt、excel这三种类型的文档转PDF
      * @param request
      * @return 结果码:-1 文件转换失败，-2 不支持该类型文件转换；-3 参数为空
      */
@@ -52,8 +52,9 @@ public class ConverFileToPDFController {
             return  responseDTO;
         }
         //获取源文件路径
-        String originFilePath = "http://www.fjminbaoscp.com:8085/upload/";//configProperties.getOriginFilePath();
-        String originFleFullPath = originFilePath + fileName;//源文件全路径
+        String originFilePath = "http://www.fjminbaoscp.com:8085/upload/";
+        //源文件全路径
+        String originFleFullPath = originFilePath + fileName;
         logger.info("源文件全路径：originFleFullPath"+originFleFullPath);
         //获取文件名
         String originFileName = fileName.substring(fileName.lastIndexOf("/")+1,fileName.length());;
@@ -62,11 +63,8 @@ public class ConverFileToPDFController {
 
 
 
-        //目标文件存放的地址
-        String targetFilePath =  "K:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\"+fileName;//originFleFullPath;//"C:\\upload\\";//configProperties.getTargetFilePath();
-        //拼接目标文件全路径(例如: /home/sharedprint/upload/1.doc)
-//        String targetFileFullPath = targetFilePath +originFileName;
-//        logger.info("目标文件全路径:"+targetFileFullPath);
+        // 目标文件存放的地址
+        String targetFilePath =  "K:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\"+fileName;
         logger.info("目标文件全路径:"+targetFilePath);
         //转换后的PDF文件地址
         // 获取当前时间年月日
@@ -75,19 +73,16 @@ public class ConverFileToPDFController {
         SimpleDateFormat sim = new SimpleDateFormat("yyyyMMdd");
         String currentTime = sim.format(dd);
         File uploadFileNowdate = new File("K:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\convertToPdfDir\\" + currentTime + "\\P\\");
-//        File uploadFileNowdate = new File("D:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\convertToPdfDir\\" + currentTime + "\\P\\");
         if (!uploadFileNowdate.exists() && !uploadFileNowdate.isDirectory()) {
             uploadFileNowdate.mkdirs();
         }
 
-        String convertFilePath = "K:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\convertToPdfDir\\"+currentTime+"\\P\\";;//"C:\\upload\\";
-//        String convertFilePath = "D:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\convertToPdfDir\\"+currentTime+"\\P\\";;//"C:\\upload\\";
+        String convertFilePath = "K:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\convertToPdfDir\\"+currentTime+"\\P\\";
         //转换后的PDF文件全路径(例如: /home/sharedprint/upload/1.pdf)
         String convertFileFullPath = convertFilePath  + originFileName.substring(0,originFileName.lastIndexOf(".")+1)+"pdf";
         logger.info("转换后的文件全路径:convertFileFullPath="+convertFileFullPath);
 
         //异步执行
-//        asyncService.handleFileConvert2Pdf(targetFileFullPath,convertFileFullPath,originFileName);
         asyncService.handleFileConvert2Pdf(targetFilePath,convertFileFullPath,originFileName);
         return responseDTO;
     }

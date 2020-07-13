@@ -3,20 +3,15 @@ package com.fjminbao.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.fjminbao.dto.ResponseDTO;
+import com.fjminbao.log.LogLevenCode;
+import com.fjminbao.log.RemoteLogUtil;
 import com.fjminbao.task.service.AsyncDealWithPdfService;
-import com.fjminbao.task.service.AsyncMergePdfService;
-import com.fjminbao.util.MergePdfBySpirePDFUtils;
-import com.fjminbao.util.MergePdfUtils;
-import com.fjminbao.util.SplitPDFUtils;
-import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -32,53 +27,11 @@ import java.util.logging.Logger;
 public class MergePdfFilesController {
     private static final Logger logger = Logger.getLogger("ConverFileToPDFController");
 
-
-    @Autowired
-    private AsyncMergePdfService asyncMergePdfService;
-
     @Autowired
     private AsyncDealWithPdfService asyncDealWithPdfService;
 
-    @RequestMapping(value = "/mergePdfFiles",method = RequestMethod.POST)
-    public ResponseDTO mergePdfFiles(HttpServletRequest request){
-        ResponseDTO responseDTO = new ResponseDTO();
-
-
-        String mergePdfFilePath = request.getParameter("mergePdfFilePath");
-        mergePdfFilePath = "K:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\"+mergePdfFilePath;
-        //这是JSON格式的List<String>字符串，需要将其从JSON数据转为List<String>数据
-        String pdfFilePathNamesJSON = request.getParameter("pdfFilePathNames");
-
-        logger.info("pdfFilePathNamesJSON="+pdfFilePathNamesJSON);
-        List<String> list = JSON.parseArray(pdfFilePathNamesJSON, String.class);
-
-        String[] pdfFilePathNames = new String[list.size()];
-        for(int i=0;i<list.size();i++){
-            String pdfFilePath = list.get(i);
-            pdfFilePathNames[i] = "K:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\"+pdfFilePath;
-        }
-
-
-        if (StringUtils.isEmpty(mergePdfFilePath) || StringUtils.isEmpty(pdfFilePathNames)) {
-            responseDTO.setResultMsg("PARAMMETER_ERROR");
-            return responseDTO;
-        }
-        try {
-            //进行将多个PDF文件合并成一个PDF,用异步的方式
-            asyncMergePdfService.mergePdfByPdfNames(mergePdfFilePath,pdfFilePathNames);
-            responseDTO.setResultMsg("SUCCESS");
-            responseDTO.setResultCode(1);
-        } catch (Exception e) {
-            logger.info("文件打开异常");
-            e.printStackTrace();
-        }
-
-        return responseDTO;
-    }
-
-
     /**
-     * 处理文件的拆分与合并
+     * 处理PDF文件的拆分与合并
      * @param request
      * @return
      * @throws Exception
@@ -86,7 +39,26 @@ public class MergePdfFilesController {
     @RequestMapping(value = "/splitPdfAndMergePdf")
     public ResponseDTO splitPdfAndMergePdf(HttpServletRequest request)throws Exception{
         ResponseDTO responseDTO = new ResponseDTO();
-        asyncDealWithPdfService.dealWithPdfSplitAndMerge(request);
+        // listMapJSON的值是一个 List<Map>格式的JSON数组,例如：[{"pageRange":"1,6","fileName":"支付宝和微信的转账详情.docx","flag":true,"previewFilePath":"convertToPdfDir/20200710/P/Pdocx20200710181407591.pdf","perInf_Code":"10000100","num":"1","printColor":"1","printOddEven":"1","PerUser_Code":"P1000194","pages":"6","printPaper":"A4","price":"0.06","pageNumStar":"1","fileType":"/static/img/word.png","fileId":5605,"pageNumEnd":"6"},{"pageRange":"1,50","fileName":"1.pdf","flag":true,"previewFilePath":"20200710/P/Ppdf20200710181301755.pdf","perInf_Code":"10000100","num":"1","printColor":"1","printOddEven":"1","PerUser_Code":"P1000194","pages":"50","printPaper":"A4","price":"0.5","pageNumStar":"1","fileType":"/static/img/pdf.png","fileId":5604,"pageNumEnd":"50"}]
+        String listMapJSON = request.getParameter("listMapJSON");
+        String mergePdfFilePath = request.getParameter("mergePdfFilePath");
+        logger.info("listMapJSON="+listMapJSON);
+        logger.info("mergePdfFilePath="+mergePdfFilePath);
+        if(StringUtils.isEmpty(listMapJSON)){
+            responseDTO.setResultMsg("listMapJSON IS NULL");
+            responseDTO.setResultCode(-1);
+            RemoteLogUtil.writeRemoteLog("PDF拆分与合并中,请求参数:listMapJSON IS NULL,APIS->converServer",RemoteLogUtil.getClassEtcMsg(new Throwable().getStackTrace()[0]), LogLevenCode.ERROR);
+            return responseDTO;
+        }
+        if(StringUtils.isEmpty(mergePdfFilePath)){
+            responseDTO.setResultMsg("mergePdfFilePath IS NULL");
+            responseDTO.setResultCode(-1);
+            RemoteLogUtil.writeRemoteLog("PDF拆分与合并中,请求参数:mergePdfFilePath IS NULL,APIS->converServer",RemoteLogUtil.getClassEtcMsg(new Throwable().getStackTrace()[0]), LogLevenCode.ERROR);
+            return responseDTO;
+        }
+        JSONArray jsonArray = JSON.parseArray(listMapJSON);
+        List<Map> listMap = jsonArray.toJavaList(Map.class);
+        asyncDealWithPdfService.dealWithPdfSplitAndMerge(request,listMap);
 
         responseDTO.setResultCode(1);
         responseDTO.setResultMsg("SUCCESS");

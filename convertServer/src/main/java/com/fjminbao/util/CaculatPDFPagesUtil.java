@@ -6,6 +6,8 @@ package com.fjminbao.util;
  * Descrpition:
  */
 
+import com.fjminbao.log.LogLevenCode;
+import com.fjminbao.log.RemoteLogUtil;
 import com.itextpdf.text.pdf.PdfReader;
 import org.apache.poi.hslf.usermodel.HSLFSlideShow;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -63,6 +65,7 @@ public class CaculatPDFPagesUtil {
             //释放资源
             reader.close();
         } catch (IOException e) {
+            RemoteLogUtil.writeRemoteLog("获取转换后的PDF文件页码失败,PDF路径="+filepath+",fileservice->converServer",RemoteLogUtil.getClassEtcMsg(new Throwable().getStackTrace()[0]), LogLevenCode.ERROR);
             e.printStackTrace();
         }
         logger.info("获取到pdf的页数为:"+pagecount+"页");

@@ -25,11 +25,11 @@ public class OfficeConvertPDF {
      * @param ouputFile 生成文件路径
      * @return
      */
-    public static boolean PdfManager(String inputFile,String ouputFile) {
-      //  boolean flag = TransferToPDFUtil.convert2PDF(inputFile, ouputFile);
-     //   return flag;
-        return false;
-    }
+//    public static boolean PdfManager(String inputFile,String ouputFile) {
+//      //  boolean flag = TransferToPDFUtil.convert2PDF(inputFile, ouputFile);
+//     //   return flag;
+//        return false;
+//    }
 
     /***
      * 判断文件类型
@@ -54,23 +54,20 @@ public class OfficeConvertPDF {
         if (!file.exists()) {
             System.out.println("文件不存在！");
             return -1;
-            //return false;
         }
-        if (suffix.equals("pdf")) {
+        if ("pdf".equals(suffix)) {
             System.out.println("PDF not need to convert!");
             return -1;
-            //return true;
         }
-        if (suffix.equals("doc") || suffix.equals("docx")) {
+        if ("doc".equals(suffix) || "docx".equals(suffix)) {
             return word2PDF(inputFile, pdfFile);
-        } else if (suffix.equals("ppt") || suffix.equals("pptx")) {
+        } else if ("ppt".equals(suffix) || "pptx".equals(suffix)) {
             return ppt2PDF(inputFile, pdfFile);
-        } else if (suffix.equals("xls") || suffix.equals("xlsx")) {
+        } else if ("xls".equals(suffix) || "xlsx".equals(suffix)) {
             return excel2PDF(inputFile, pdfFile);
         } else {
             System.out.println("文件格式不支持转换!");
             return -1;
-            //return false;
         }
     }
 
@@ -102,10 +99,8 @@ public class OfficeConvertPDF {
 
             //文件转换成功之后，获取PDF文件页码
             return CaculatPDFPagesUtil.getPDFPage(pdfFile);
-          //  return true;
         } catch (Exception e) {
             return -1;
-           // return false;
         }
     }
 
@@ -136,11 +131,9 @@ public class OfficeConvertPDF {
             }
             //文件转换成功之后，获取文件总页码
             return CaculatPDFPagesUtil.getPDFPage(pdfFile);
-            //return true;
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
-          //  return false;
         }
 
     }
@@ -156,9 +149,10 @@ public class OfficeConvertPDF {
             ActiveXComponent app = new ActiveXComponent(
                     "PowerPoint.Application");
             Dispatch ppts = app.getProperty("Presentations").toDispatch();
-            Dispatch ppt = Dispatch.call(ppts, "Open", inputFile, true,// ReadOnly
-                    true,// Untitled指定文件是否有标题
-                    false// WithWindow指定文件是否可见
+            //倒数第一个参数：WithWindow指定文件是否可见  倒数第二个参数：Untitled指定文件是否有标题 倒数第三个参数：ReadOnly
+            Dispatch ppt = Dispatch.call(ppts, "Open", inputFile, true,
+                    true,
+                    false
             ).toDispatch();
             File tofile = new File(pdfFile);
             if (tofile.exists()) {
@@ -173,27 +167,25 @@ public class OfficeConvertPDF {
             }
             //文件转换成功之后，获取文件总页码
             return CaculatPDFPagesUtil.getPDFPage(pdfFile);
-          //  return true;
         } catch (Exception e) {
             e.printStackTrace();
             //文件转换失败，返回-1
             return -1;
-           // return false;
         }finally {
 
         }
     }
 
 
-    public static void main(String[] args) {
-        //      logger.info("【【【【【【【【开始转换...】】】】】】】】】】】】】】】.");
-//        word2PDF("D:\\123.docx", "D:\\123.pdf");
-//        word2PDF("D:\\test3\\22.docx","D:\\test3\\22.pdf");
-//
-//        excel2PDF("D:\\test3\\2.xlsx","D:\\test3\\2.pdf");
-//        excel2PDF("D:\\test3\\3.xls","D:\\test3\\3.pdf");
-//
-//        ppt2PDF("D:\\test3\\12.ppt","D:\\test3\\12.pdf");
-//        ppt2PDF("D:\\test3\\13.pptx","D:\\test3\\13.pdf");
-    }
+//    public static void main(String[] args) {
+//        //      logger.info("【【【【【【【【开始转换...】】】】】】】】】】】】】】】.");
+////        word2PDF("D:\\123.docx", "D:\\123.pdf");
+////        word2PDF("D:\\test3\\22.docx","D:\\test3\\22.pdf");
+////
+////        excel2PDF("D:\\test3\\2.xlsx","D:\\test3\\2.pdf");
+////        excel2PDF("D:\\test3\\3.xls","D:\\test3\\3.pdf");
+////
+////        ppt2PDF("D:\\test3\\12.ppt","D:\\test3\\12.pdf");
+////        ppt2PDF("D:\\test3\\13.pptx","D:\\test3\\13.pdf");
+//    }
 }

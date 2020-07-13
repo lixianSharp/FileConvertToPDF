@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.fjminbao.dao.FileConvertMapperDao;
 import com.fjminbao.dto.ResponseDTO;
 import com.fjminbao.entity.FileConvertMsg;
+import com.fjminbao.log.LogLevenCode;
+import com.fjminbao.log.RemoteLogUtil;
 import com.fjminbao.util.CaculatPDFPagesUtil;
 import com.fjminbao.util.HttpUtil;
 import com.fjminbao.util.OfficeConvertPDF;
@@ -17,10 +19,11 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 /**
- * 进行异步处理的service
+ * 进行异步处理文件转为PDF的service
  *
  * @Author: xianyuanLi
  * @Date: created in 14:57 2019/12/19
@@ -39,21 +42,37 @@ public class AsyncService {
     private static final int xlsFormatPDF = 0;
     private static final int pptFormatPDF = 32;
 
-    private static int count = 0;
+    public static AtomicInteger atomicInteger = new AtomicInteger(0);
 
-    //告诉Spring，这是一个异步方法(非阻塞的)。每调用一次，Spring都会使用一个线程去执行，线程由Spring的线程池维护。
+
+
+    /**
+     * 告诉Spring，这是一个异步方法(非阻塞的)。每调用一次，Spring都会使用一个线程去执行，线程由Spring的线程池维护。
+     * @param targetFileFullPath
+     * @param convertFileFullPath
+     * @param originFileName
+     */
     @Async
     public void handleFileConvert2Pdf( String targetFileFullPath, String convertFileFullPath, String originFileName) {
         try {
-            logger.info("文件转换任务处理中....." + (++count));
+            int count = atomicInteger.getAndIncrement();
+            logger.info("文件转换任务处理中....." + count);
+            RemoteLogUtil.writeRemoteLog("开始处理Office文件转为PDF,参数信息originFileName"+originFileName+",targetFileFullPath="+targetFileFullPath+",convertFileFullPath"+convertFileFullPath+",fileserver->converServer",RemoteLogUtil.getClassEtcMsg(new Throwable().getStackTrace()[0]), LogLevenCode.INFO);
             convertToPdf(targetFileFullPath, convertFileFullPath, originFileName);
-            logger.info("文件转换任务处理完成" + (count));
+            logger.info("文件转换任务处理完成" + count);
         } catch (Exception e) {
             logger.info("文件" + originFileName + "转换失败");
+            RemoteLogUtil.writeRemoteLog("Office文件转PDF失败,参数信息originFileName"+originFileName+",targetFileFullPath="+targetFileFullPath+",convertFileFullPath"+convertFileFullPath+",fileserver->converServer",RemoteLogUtil.getClassEtcMsg(new Throwable().getStackTrace()[0]), LogLevenCode.ERROR);
             e.printStackTrace();
         }
     }
 
+    /**
+     * Office文档转为 PDF
+     * @param targetFileFullPath
+     * @param convertFileFullPath
+     * @param originFileName
+     */
     @Async
     public void convertToPdf(String targetFileFullPath, String convertFileFullPath, String originFileName) {
         String convertStatus = "0";
@@ -89,14 +108,21 @@ public class AsyncService {
     }
 
 
-    //异步保存文件信息
+    /**
+     * 异步保存文件信息
+     * @param targetFileFullPath
+     * @param convertFileFullPath
+     * @param originFileName
+     * @param convertStatus
+     * @param pages
+     */
     @Async
     public void handleFileConvertMsg(String targetFileFullPath,
                                      String convertFileFullPath, String originFileName,String  convertStatus, String pages) {
         //目标文件存放路径
-        String targetFilePath = targetFileFullPath;//"C:\\upload\\";//configProperties.getTargetFilePath();
+        String targetFilePath = targetFileFullPath;
         //转换后的文件存放地址
-        String convertFilePath = "K:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\convertToPdfDir\\";//configProperties.getConvertFilePath();
+        String convertFilePath = "K:\\apache-tomcat-8.5.38-8085-file\\webapps\\ROOT\\upload\\convertToPdfDir\\";
 
         //获取目标文件名(不带目录)
         String targetFileName = originFileName;
@@ -126,11 +152,14 @@ public class AsyncService {
 
         //往8088API服务发起一个请求，获取默认价格
         String url = "http://www.fjminbaoscp.com:8088/queryFilePriceByFileNameAndPages";
-        Map<String,Object> paramMap = new HashMap<String,Object>();
-        paramMap.put("pages",pages);//总页数
-        paramMap.put("fileName",convertFileName);//文件名
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        //总页数
+        paramMap.put("pages",pages);
+        //文件名
+        paramMap.put("fileName",convertFileName);
         String fileDefaultPrice = "0";
         try {
+            logger.info("发送的参数为:"+paramMap);
             String result = HttpUtil.post(url, paramMap);
             logger.info("返回的数据:result="+result);
             //TODO 解析json格式的result，将里面的默认价格解析出来
@@ -138,6 +167,7 @@ public class AsyncService {
             fileDefaultPrice = (String)data.get("filePrice");
             logger.info("价格="+fileDefaultPrice);
         } catch (Exception e) {
+            RemoteLogUtil.writeRemoteLog("文件转PDF成功后,获取默认价格失败,请求参数paramMap="+paramMap+",converServer->APIS",RemoteLogUtil.getClassEtcMsg(new Throwable().getStackTrace()[0]), LogLevenCode.ERROR);
             logger.info("获取默认价格失败");
             e.printStackTrace();
         }
@@ -145,7 +175,12 @@ public class AsyncService {
         fileConvertMsg.setReserve3(fileDefaultPrice);
 
         //保存
-        fileConvertMapperDao.addFileConvertMsg(fileConvertMsg);
+        try {
+            fileConvertMapperDao.addFileConvertMsg(fileConvertMsg);
+        } catch (Exception e) {
+            RemoteLogUtil.writeRemoteLog("文件转换信息保存失败,fileConvertMsg="+fileConvertMsg+",converServer->APIS",RemoteLogUtil.getClassEtcMsg(new Throwable().getStackTrace()[0]), LogLevenCode.ERROR);
+            e.printStackTrace();
+        }
     }
 
 //    public static void main(String[] args) {
@@ -166,9 +201,11 @@ public class AsyncService {
 //        }
 //    }
 
-    /////////////////////////////////////////////////////////////////////////////////
-    ////////////////【【【【【【【【【【以下是文件转换代码】】】】】】】】】】】】】】】】】
-    /////////////////////////////////////////////////////////////////////////////////
+    /**
+     * 获取文件后缀名
+     * @param fileName
+     * @return
+     */
     public String getFileSufix(String fileName) {
         int splitIndex = fileName.lastIndexOf(".");
         return fileName.substring(splitIndex + 1);
@@ -186,23 +223,21 @@ public class AsyncService {
         if (!file.exists()) {
             System.out.println("文件不存在！");
             return -1;
-            //return false;
         }
-        if (suffix.equals("pdf")) {
+        if ("pdf".equals(suffix)) {
             System.out.println("PDF not need to convert!");
             return -1;
             //return true;
         }
-        if (suffix.equals("doc") || suffix.equals("docx")) {
+        if ("doc".equals(suffix) || "docx".equals(suffix)) {
             return word2PDF(inputFile, pdfFile);
-        } else if (suffix.equals("ppt") || suffix.equals("pptx")) {
+        } else if ("ppt".equals(suffix)|| "pptx".equals(suffix)) {
             return ppt2PDF(inputFile, pdfFile);
-        } else if (suffix.equals("xls") || suffix.equals("xlsx")) {
+        } else if ("xls".equals(suffix) || "xlsx".equals(suffix)) {
             return excel2PDF(inputFile, pdfFile);
         } else {
             System.out.println("文件格式不支持转换!");
             return -1;
-            //return false;
         }
     }
 
@@ -232,14 +267,9 @@ public class AsyncService {
                 fromfile.delete();
             }
 
-            //释放资源
-//            Dispatch.call(docs, "Close", false);
-            // 文件转换成功之后，获取PDF文件页码
             return CaculatPDFPagesUtil.getPDFPage(pdfFile);
-            //  return true;
         } catch (Exception e) {
             return -1;
-            // return false;
         }
     }
 
@@ -269,16 +299,10 @@ public class AsyncService {
             if (fromfile.exists()) {
                 fromfile.delete();
             }
-
-            //释放资源
-//            Dispatch.call(excels, "Close", false);
-            //文件转换成功之后，获取文件总页码
             return CaculatPDFPagesUtil.getPDFPage(pdfFile);
-            //return true;
         } catch (Exception e) {
             e.printStackTrace();
             return -1;
-            //  return false;
         }
 
     }
@@ -296,9 +320,10 @@ public class AsyncService {
             ActiveXComponent app = new ActiveXComponent(
                     "PowerPoint.Application");
             Dispatch ppts = app.getProperty("Presentations").toDispatch();
-            Dispatch ppt = Dispatch.call(ppts, "Open", inputFile, true,// ReadOnly
-                    true,// Untitled指定文件是否有标题
-                    false// WithWindow指定文件是否可见
+            //倒数第一个参数：WithWindow指定文件是否可见  倒数第二个参数：Untitled指定文件是否有标题 倒数第三个参数：ReadOnly
+            Dispatch ppt = Dispatch.call(ppts, "Open", inputFile, true,
+                    true,
+                    false
             ).toDispatch();
             File tofile = new File(pdfFile);
             if (tofile.exists()) {
@@ -312,17 +337,10 @@ public class AsyncService {
                 fromfile.delete();
             }
 
-            //释放资源
-//            Dispatch.call(ppts, "Close");
-
-            //文件转换成功之后，获取文件总页码
             return CaculatPDFPagesUtil.getPDFPage(pdfFile);
-            //  return true;
         } catch (Exception e) {
             e.printStackTrace();
-            //文件转换失败，返回-1
             return -1;
-            // return false;
         }
     }
 
