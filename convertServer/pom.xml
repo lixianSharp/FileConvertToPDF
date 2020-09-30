@@ -78,6 +78,17 @@
 			<artifactId>itext-asian</artifactId>
 			<version>5.2.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.47</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcmail-jdk15on</artifactId>
+			<version>1.47</version>
+		</dependency>
 		<!--计算PDF页数 对PDF 进行拆分、对PDF进行合并 end -->
 
 
@@ -319,7 +330,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<includeSystemScope>true</includeSystemScope>
-					<!--表示：打出来的jar包名如果是由execute的，则代表可执行jar，就是我们需要进行运行的jar-->
+					<!--表示：打出来的jar包名如果是有execute的，则代表可执行jar，就是我们需要进行运行的jar-->
 					<classifier>execute</classifier>
 				</configuration>
 				<executions>

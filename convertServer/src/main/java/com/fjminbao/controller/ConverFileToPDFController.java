@@ -44,7 +44,7 @@ public class ConverFileToPDFController {
     @ResponseBody
     public ResponseDTO convertToPdf(HttpServletRequest request) throws IOException {
         ResponseDTO responseDTO = new ResponseDTO();
-        String fileName = request.getParameter("fileDestPathName");
+        String fileName = request.getParameter("fileDestPathName");//    20200923/P/Pdoc20200923083443554.doc
         logger.info("接收到的参数:fileName="+fileName);
         if (StringUtils.isEmpty(fileName)){
             responseDTO.setResultCode(-3);
@@ -52,10 +52,10 @@ public class ConverFileToPDFController {
             return  responseDTO;
         }
         //获取源文件路径
-        String originFilePath = "http://www.fjminbaoscp.com:8085/upload/";
+//        String originFilePath = "http://www.fjminbaoscp.com:8085/upload/";
         //源文件全路径
-        String originFleFullPath = originFilePath + fileName;
-        logger.info("源文件全路径：originFleFullPath"+originFleFullPath);
+//        String originFleFullPath = originFilePath + fileName;
+//        logger.info("源文件全路径：originFleFullPath"+originFleFullPath);
         //获取文件名
         String originFileName = fileName.substring(fileName.lastIndexOf("/")+1,fileName.length());;
         //使用http下载文件

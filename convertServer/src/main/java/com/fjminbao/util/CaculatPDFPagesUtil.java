@@ -24,6 +24,10 @@ import java.util.logging.Logger;
  */
 public class CaculatPDFPagesUtil {
 
+    public static void main(String[] args) {
+        int filePages = getFilePages("D:\\22.pdf");
+        System.out.println(filePages);
+    }
 
     private static final Logger logger = Logger.getLogger("GetFilePagesUtil");
 
