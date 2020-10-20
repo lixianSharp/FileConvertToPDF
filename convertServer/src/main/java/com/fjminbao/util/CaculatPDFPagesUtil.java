@@ -24,13 +24,12 @@ import java.util.logging.Logger;
  */
 public class CaculatPDFPagesUtil {
 
-    public static void main(String[] args) {
-        int filePages = getFilePages("D:\\22.pdf");
-        System.out.println(filePages);
-    }
-
     private static final Logger logger = Logger.getLogger("GetFilePagesUtil");
 
+    public static void main(String[] args) {
+        int filePages = getFilePages("D:\\暑假三年级第二讲加油站解析C(教师版).PDF");
+        System.out.println(filePages);
+    }
     /**
      * 获取 pdf 、ppt 、pptx、 xls、 xlsx文件页数
      * @param path 文件全路基

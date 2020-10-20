@@ -9,6 +9,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -33,28 +34,34 @@ public class TaskAsyncConfig implements AsyncConfigurer {
             public Thread newThread(Runnable r) {
                 //重新定义一个名称
                 Thread t = new Thread(Thread.currentThread().getThreadGroup(), r,
-                        "async-task-all" + threadNumber.getAndIncrement(),
+                        "async-task-" + threadNumber.getAndIncrement(),
                         0);
                 return t;
             }
         });
-        executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(100);
+        executor.setCorePoolSize(32);
+        //设置最大线程数
+        executor.setMaxPoolSize(256);
+        //设置线程池活跃时间
         executor.setKeepAliveSeconds(5);
-        executor.setQueueCapacity(100);
-//        executor.setRejectedExecutionHandler(null);
+        //设置队列容量
+        executor.setQueueCapacity(300);
+        //设置拒绝策略
+//        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        // 等待所有任务结束后再关闭线程池
+        executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.initialize();
         return executor;
     }
 
-//    @Override
-//    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-//        return new AsyncUncaughtExceptionHandler() {
-//            @Override
-//            public void handleUncaughtException(Throwable ex, Method method, Object... params) {
-//                System.out.println("do exception by myself");
-//            }
-//        };
-//    }
+    @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return new AsyncUncaughtExceptionHandler() {
+            @Override
+            public void handleUncaughtException(Throwable ex, Method method, Object... params) {
+                System.out.println("do exception by myself");
+            }
+        };
+    }
 
 }

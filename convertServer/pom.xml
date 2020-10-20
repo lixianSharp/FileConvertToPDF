@@ -113,32 +113,6 @@
 			<!--<version>6.2.2</version>-->
 		<!--</dependency>-->
 
-
-
-		<!-- https://mvnrepository.com/artifact/org.openoffice/unoil -->
-		<dependency>
-			<groupId>org.openoffice</groupId>
-			<artifactId>unoil</artifactId>
-			<version>3.2.1</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.openoffice/juh -->
-		<dependency>
-			<groupId>org.openoffice</groupId>
-			<artifactId>juh</artifactId>
-			<version>3.2.1</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.openoffice/ridl -->
-		<dependency>
-			<groupId>org.openoffice</groupId>
-			<artifactId>ridl</artifactId>
-			<version>3.2.1</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.openoffice/jurt -->
-		<dependency>
-			<groupId>org.openoffice</groupId>
-			<artifactId>jurt</artifactId>
-			<version>3.2.1</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/dom4j/dom4j -->
 		<dependency>
 			<groupId>dom4j</groupId>
@@ -254,33 +228,6 @@
 			<systemPath>${basedir}/src/main/resources/lib/jacob.jar</systemPath>
 		</dependency>
 
-
-		<!-- https://mvnrepository.com/artifact/com.artofsolving/jodconverter -->
-		<!--<dependency>-->
-			<!--<groupId>com.artofsolving</groupId>-->
-			<!--<artifactId>jodconverter</artifactId>-->
-			<!--<version>2.2.1</version>-->
-		<!--</dependency>-->
-		<!-- https://mvnrepository.com/artifact/org.openoffice/unoil -->
-		<!--<dependency>-->
-			<!--<groupId>org.openoffice</groupId>-->
-			<!--<artifactId>unoil</artifactId>-->
-			<!--<version>3.0.1</version>-->
-		<!--</dependency>-->
-
-		<!-- 用于多个PDF合并成一个PDF，这个不能指定每个PDF文件的指定页码进行合并，只能整个整个文件进行合并 https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
-		<!--<dependency>-->
-			<!--<groupId>org.apache.pdfbox</groupId>-->
-			<!--<artifactId>pdfbox</artifactId>-->
-			<!--<version>1.7.1</version>-->
-		<!--</dependency>-->
-
-		<!--指定Spire.PDF for Java的Maven依赖。 Free Spire.PDF for Java  （免费版）-->
-		<!--<dependency>-->
-			<!--<groupId>e-iceblue</groupId>-->
-			<!--<artifactId>spire.pdf.free</artifactId>-->
-			<!--<version>2.6.3</version>-->
-		<!--</dependency>-->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
