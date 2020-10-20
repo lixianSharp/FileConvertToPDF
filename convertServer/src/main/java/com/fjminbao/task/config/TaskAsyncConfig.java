@@ -39,11 +39,11 @@ public class TaskAsyncConfig implements AsyncConfigurer {
                 return t;
             }
         });
-        executor.setCorePoolSize(32);
+        executor.setCorePoolSize(10);
         //设置最大线程数
-        executor.setMaxPoolSize(256);
+        executor.setMaxPoolSize(200);
         //设置线程池活跃时间
-        executor.setKeepAliveSeconds(5);
+        executor.setKeepAliveSeconds(10);
         //设置队列容量
         executor.setQueueCapacity(300);
         //设置拒绝策略
