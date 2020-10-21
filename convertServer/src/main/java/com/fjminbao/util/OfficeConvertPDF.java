@@ -20,6 +20,12 @@ public class OfficeConvertPDF {
     private static final int pptFormatPDF = 32;
     private static final int msoTrue = -1;
     private static final int msofalse = 0;
+
+    static {
+        //初始化com的线程
+        ComThread.InitSTA();
+    }
+
     /**
      * 调用转PDF的方法
      * @param inputFile 传入文件路径
@@ -31,6 +37,7 @@ public class OfficeConvertPDF {
 //     //   return flag;
 //        return false;
 //    }
+
 
     /***
      * 判断文件类型
