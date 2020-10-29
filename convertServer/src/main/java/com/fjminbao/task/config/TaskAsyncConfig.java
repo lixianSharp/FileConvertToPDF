@@ -39,13 +39,13 @@ public class TaskAsyncConfig implements AsyncConfigurer {
                 return t;
             }
         });
-        executor.setCorePoolSize(10);
+        executor.setCorePoolSize(20);
         //设置最大线程数
-        executor.setMaxPoolSize(200);
+        executor.setMaxPoolSize(500);
         //设置线程池活跃时间
         executor.setKeepAliveSeconds(10);
         //设置队列容量
-        executor.setQueueCapacity(300);
+        executor.setQueueCapacity(1000);
         //设置拒绝策略
 //        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         // 等待所有任务结束后再关闭线程池
@@ -60,6 +60,7 @@ public class TaskAsyncConfig implements AsyncConfigurer {
             @Override
             public void handleUncaughtException(Throwable ex, Method method, Object... params) {
                 System.out.println("do exception by myself");
+                ex.printStackTrace();
             }
         };
     }
